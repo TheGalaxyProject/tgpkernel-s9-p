@@ -1,0 +1,271 @@
+# -------------------------
+# TGPKERNEL INSTALLER 6.1.9
+# Created by @djb77
+# -------------------------
+
+set_progress(0.0);
+
+# BACKUP CONFIG
+# -------------
+if file_getprop("/tmp/aroma/tgpkernel-backup.prop","install") == "1" then
+	ui_print("<#ffffcc>Backing up Config</#>");
+	run_program("/tmp/aroma/tgpkernel.sh", "config_backup");
+	ui_print(" ");
+endif;
+
+# RESTORE CONFIG
+# --------------
+if file_getprop("/tmp/aroma/tgpkernel-restore.prop","install") == "1" then
+	ui_print("<#ffffcc>Restoring Config</#>");
+	run_program("/tmp/aroma/tgpkernel.sh", "config_restore");
+	ui_print(" ");
+endif;
+
+set_progress(0.10);
+
+# WIPE MAGISK
+# -----------
+if file_getprop("/tmp/aroma/wipe.prop","install") == "1" then
+	ui_print("<#ffffcc>Clearing old Magisk Installs</#>");
+	package_extract_dir("tgpkernel/magisk-uninstaller", "/tmp/magisk-uninstaller");
+	run_program("/sbin/unzip", "/tmp/magisk-uninstaller/magisk-uninstaller.zip", "META-INF/com/google/android/*", "-d", "/tmp/magisk-uninstaller");
+	run_program("/sbin/sh", "/tmp/magisk-uninstaller/META-INF/com/google/android/update-binary", "dummy", "1", "/tmp/magisk-uninstaller/magisk-uninstaller.zip");
+	delete_recursive("/tmp/magisk-uninstaller");
+	ui_print(" ");
+endif;
+
+set_progress(0.20);
+
+# SETUP
+# -----
+ui_print("<#ffffcc>Setting up the Installer</#>");
+
+# UNPACK FILES
+# ------------
+ui_print("- Unpacking Files");
+package_extract_dir("tgpkernel/kernels", "/tmp/tgptemp");
+
+set_progress(0.30);
+
+# MOUNT PARTITIONS
+# ----------------
+ui_print("- Mounting Partitions");
+ifelse(is_mounted("/system"), unmount("/system"));
+ifelse(is_mounted("/vendor"), unmount("/vendor"));
+ifelse(is_mounted("/data"), unmount("/data"));
+run_program("/sbin/mount", "/system");
+run_program("/sbin/mount", "/vendor");
+run_program("/sbin/mount", "/data");
+if file_getprop("/tmp/aroma/wipe.prop","install") == "1" then
+run_program("/tmp/aroma/tgpkernel.sh", "wipe_magisk");
+endif;
+
+set_progress(0.35);
+
+# CHECK VARIANT
+# -------------
+if is_substring("G960", getprop("ro.boot.bootloader")) then
+	ui_print("- Checking for Device Type, S9 Found");
+	run_program("/tmp/aroma/tgpkernel.sh", "check_g960x");
+endif;
+if is_substring("G965", getprop("ro.boot.bootloader")) then
+	ui_print("- Checking for Device Type, S9+ Found");
+	run_program("/tmp/aroma/tgpkernel.sh", "check_g965x");
+endif;
+
+set_progress(0.38);
+
+# CHECK ROM
+# ---------
+run_program("/tmp/aroma/tgpkernel.sh", "rom_check");
+if file_getprop("/tmp/aroma/deodexed.prop","install") == "1" then
+	ui_print("- Checking for ROM Type, Deodexed ROM Found");
+endif;
+if file_getprop("/tmp/aroma/check_n9port.prop","install") == "1" then
+	ui_print("- Checking for ROM Type, N9 Port Found");
+endif;
+if file_getprop("/tmp/aroma/check_s9.prop","install") == "1" then
+	ui_print("- Checking for ROM Type, S9 Found");
+endif;
+if file_getprop("/tmp/aroma/check_s9+.prop","install") == "1" then
+	ui_print("- Checking for ROM Type, S9+ Found");
+endif;
+
+set_progress(0.40);
+
+ui_print(" ");
+
+# FLASH KERNEL
+# ------------
+if file_getprop("/tmp/aroma/g960x.prop","install") == "1" then
+	ui_print("<#ffffcc>Flashing TGPKernel for S9</#>");
+	run_program("/tmp/aroma/tgpkernel.sh", "kernel_flash");
+endif;
+if file_getprop("/tmp/aroma/g965x.prop","install") == "1" then
+	ui_print("<#ffffcc>Flashing TGPKernel for S9+</#>");
+	run_program("/tmp/aroma/tgpkernel.sh", "kernel_flash");
+endif;
+
+set_progress(0.45);
+
+# INSTALL SYSTEM AND VENDOR PATCHES
+# ---------------------------------
+ui_print(" ");
+ui_print("<#ffffcc>Applying System and Vendor Patches</#>");
+package_extract_dir("tgpkernel/system", "/system");
+delete_recursive("/system/priv-app/Rlc");
+delete_recursive("/system/app/SecurityLogAgent");
+run_program("/tmp/aroma/tgpkernel.sh", "deleteprop", "/system/build.prop", "ro.expect.recovery_id");
+run_program("/tmp/aroma/tgpkernel.sh", "deleteprop", "/system/etc/prop.default", "ro.frp.pst");
+run_program("/tmp/aroma/tgpkernel.sh", "deleteprop", "/vendor/build.prop", "ro.frp.pst");
+run_program("/tmp/aroma/tgpkernel.sh", "setprop", "/system/build.prop", "ro.config.tima", "1", "0");
+run_program("/tmp/aroma/tgpkernel.sh", "setprop", "/system/build.prop", "ro.config.dmverity", "A", "false");
+run_program("/tmp/aroma/tgpkernel.sh", "setprop", "/system/build.prop", "ro.config.kap_default_on", "true", "false");
+run_program("/tmp/aroma/tgpkernel.sh", "setprop", "/system/build.prop", "ro.config.kap", "true", "false");
+run_program("/tmp/aroma/tgpkernel.sh", "setprop", "/system/build.prop", "ro.kernel.android.checkjni", "1", "0");
+run_program("/tmp/aroma/tgpkernel.sh", "setprop", "/system/build.prop", "ro.kernel.checkjni", "1", "0");
+run_program("/tmp/aroma/tgpkernel.sh", "setprop", "/system/build.prop", "ro.securestorage.support", "true", "false");
+run_program("/tmp/aroma/tgpkernel.sh", "setprop", "/system/build.prop", "wlan.wfd.hdcp", "enable", "disable");
+run_program("/tmp/aroma/tgpkernel.sh", "setprop", "/system/etc/prop.default", "persist.security.ams.enforcing", "1", "0");
+run_program("/tmp/aroma/tgpkernel.sh", "setprop", "/system/etc/prop.default", "ro.security.vaultkeeper.feature", "1", "0");
+run_program("/tmp/aroma/tgpkernel.sh", "setprop", "/system/etc/prop.default", "ro.debuggable", "0", "1");
+run_program("/tmp/aroma/tgpkernel.sh", "setprop", "/system/etc/prop.default", "persist.service.adb.enable", "0", "1");
+run_program("/tmp/aroma/tgpkernel.sh", "setprop", "/system/etc/prop.default", "persist.service.debuggable", "0", "1");
+run_program("/tmp/aroma/tgpkernel.sh", "setprop", "/system/etc/prop.default", "persist.adb.notify", "1", "0");
+run_program("/tmp/aroma/tgpkernel.sh", "setprop", "/system/etc/prop.default", "ro.supportmodel.mptcp", "1", "0");
+run_program("/tmp/aroma/tgpkernel.sh", "setprop", "/system/etc/prop.default", "ro.securestorage.support", "true", "false");
+run_program("/tmp/aroma/tgpkernel.sh", "setprop", "/system/etc/prop.default", "ro.boottime.secure_storage", "true", "false");
+run_program("/tmp/aroma/tgpkernel.sh", "setprop", "/system/etc/prop.default", "ro.sec.fle.encryption", "true", "false");
+run_program("/tmp/aroma/tgpkernel.sh", "setprop", "/system/etc/prop.default", "ro.config.knox", "0", "v30");
+run_program("/tmp/aroma/tgpkernel.sh", "setprop", "/system/etc/prop.default", "wlan.wfd.hdcp", "enable", "disable");
+run_program("/tmp/aroma/tgpkernel.sh", "setprop", "/vendor/build.prop", "ro.security.vaultkeeper.feature", "1", "0");
+run_program("/tmp/aroma/tgpkernel.sh", "setprop", "/vendor/build.prop", "ro.knox.enhance.zygote.aslr", "1", "0");
+
+set_progress(0.50);
+
+# INSTALL DEODEX PATCHES
+# ----------------------
+if file_getprop("/tmp/aroma/deodexed.prop","install") == "1" then
+	ui_print("<#ffffcc>Applying Deodex Patches</#>");
+	run_program("/tmp/aroma/tgpkernel.sh", "deodex_patch");
+	package_extract_dir("tgpkernel/sepolicy", "/vendor");
+endif;
+
+set_progress(0.55);
+
+# SPLASH SCREENS
+# --------------
+if file_getprop("/tmp/aroma/splash.prop","install") == "1" then
+	if file_getprop("/tmp/aroma/g960x.prop","install") == "1" then
+		ui_print("<#ffffcc>Flashing Stock Splash Screen for S9</#>");
+		package_extract_dir("tgpkernel/splash/s9-stock", "/tmp/splash");
+		run_program("/tmp/aroma/tgpkernel.sh", "splash_flash");
+	endif;
+	if file_getprop("/tmp/aroma/g965x.prop","install") == "1" then
+		ui_print("<#ffffcc>Flashing Stock Splash Screen for S9+</#>");
+		package_extract_dir("tgpkernel/splash/s9+-stock", "/tmp/splash");
+		run_program("/tmp/aroma/tgpkernel.sh", "splash_flash");		
+	endif;
+	delete_recursive("/tmp/splash");
+endif;
+if file_getprop("/tmp/aroma/splash.prop","install") == "2" then
+	if file_getprop("/tmp/aroma/g960x.prop","install") == "1" then
+		if file_getprop("/tmp/aroma/check_s9.prop","install") == "1" then
+			ui_print("<#ffffcc>Installing Custom Splash Screen for S9</#>");
+			package_extract_dir("tgpkernel/splash/s9", "/tmp/splash");
+			run_program("/tmp/aroma/tgpkernel.sh", "splash_flash");		
+		endif;
+	endif;
+	if file_getprop("/tmp/aroma/g965x.prop","install") == "1" then
+		if file_getprop("/tmp/aroma/check_s9.prop","install") == "1" then
+			ui_print("<#ffffcc>Installing Custom Splash Screen for S9+</#>");
+			package_extract_dir("tgpkernel/splash/s9+", "/tmp/splash");
+			run_program("/tmp/aroma/tgpkernel.sh", "splash_flash");	
+		endif;
+	endif;
+	delete_recursive("/tmp/splash");
+endif;
+if file_getprop("/tmp/aroma/splash.prop","install") == "3" then
+	if file_getprop("/tmp/aroma/g960x.prop","install") == "1" then
+		if file_getprop("/tmp/aroma/check_n9.prop","install") == "1" then
+			ui_print("<#ffffcc>Installing Custom Splash Screen for Note 9</#>");
+			package_extract_dir("tgpkernel/splash/n9", "/tmp/splash");
+			run_program("/tmp/aroma/tgpkernel.sh", "splash_flash");		
+		endif;
+	endif;
+	if file_getprop("/tmp/aroma/g965x.prop","install") == "1" then
+		if file_getprop("/tmp/aroma/check_n9.prop","install") == "1" then
+			ui_print("<#ffffcc>Installing Custom Splash Screen for Note 9</#>");
+			package_extract_dir("tgpkernel/splash/n9+", "/tmp/splash");
+			run_program("/tmp/aroma/tgpkernel.sh", "splash_flash");	
+		endif;
+	endif;
+	delete_recursive("/tmp/splash");
+endif;
+
+set_progress(0.60);
+
+# INSTALL MAGISK
+# --------------
+if file_getprop("/tmp/aroma/magisk.prop","install") == "1" then
+	ui_print(" ");
+	ui_print("<#ffffcc>Installing Magisk</#>");
+	package_extract_dir("tgpkernel/magisk", "/tmp/magisk");
+	run_program("/sbin/unzip", "/tmp/magisk/magisk.zip", "META-INF/com/google/android/*", "-d", "/tmp/magisk");
+	run_program("/sbin/sh", "/tmp/magisk/META-INF/com/google/android/update-binary", "dummy", "1", "/tmp/magisk/magisk.zip");
+	delete_recursive("/tmp/magisk");
+endif;
+
+set_progress(0.70);
+
+# RAMDISK PATCHES
+# ---------------
+ui_print(" ");
+ui_print("<#ffffcc>Patching Ramdisk</#>");
+package_extract_dir("tgpkernel/anykernel2", "/tmp/ak2");
+run_program("/sbin/unzip", "/tmp/ak2/anykernel2.zip", "META-INF/com/google/android/*", "-d", "/tmp/ak2");
+run_program("/sbin/sh", "/tmp/ak2/META-INF/com/google/android/update-binary", "dummy", "1", "/tmp/ak2/anykernel2.zip");
+delete_recursive("/tmp/ak2");
+delete_recursive("/tmp/anykernel*");
+
+set_progress(0.80);
+
+# INSTALL ADB
+# -----------
+if file_getprop("/tmp/aroma/adb.prop","install") == "1" then
+	ui_print(" ");
+	ui_print("<#ffffcc>Installing ADB</#>");
+	package_extract_dir("tgpkernel/adb", "/tmp/adb");
+	run_program("/sbin/unzip", "/tmp/adb/adb.zip", "META-INF/com/google/android/*", "-d", "/tmp/adb");
+	run_program("/sbin/sh", "/tmp/adb/META-INF/com/google/android/update-binary", "dummy", "1", "/tmp/adb/adb.zip");
+	delete_recursive("/tmp/adb");
+endif;
+
+set_progress(0.60);
+
+# INSTALL BUSYBOX
+# ---------------
+if file_getprop("/tmp/aroma/busybox.prop","install") == "1" then
+	ui_print(" ");
+	ui_print("<#ffffcc>Installing BusyBox</#>");
+	package_extract_dir("tgpkernel/busybox", "/tmp/busybox");
+	run_program("/sbin/unzip", "/tmp/busybox/busybox.zip", "META-INF/com/google/android/*", "-d", "/tmp/busybox");
+	run_program("/sbin/sh", "/tmp/busybox/META-INF/com/google/android/update-binary", "dummy", "1", "/tmp/busybox/busybox.zip");
+	delete_recursive("/tmp/busybox");
+endif;
+
+set_progress(0.95);
+
+# FINISH
+# ------
+ui_print(" ");
+ui_print("<#ffffcc>Finishing up</#>");
+ui_print("- Unmounting Partitions");
+ifelse(is_mounted("/system"), unmount("/system"));
+ifelse(is_mounted("/vendor"), unmount("/vendor"));
+ui_print(" ");
+ui_print("<#ffffcc>Installation Complete</#>");
+ui_print(" ");
+
+set_progress(1);
+

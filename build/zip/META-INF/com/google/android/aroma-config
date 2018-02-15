@@ -1,0 +1,284 @@
+# -------------------------
+# TGPKERNEL INSTALLER 6.1.9
+# Created by @djb77
+# -------------------------
+
+# ROM INFO
+# --------
+ini_set("force_colorspace","rgba");
+ini_set("rom_name", "TGPKernel");
+ini_set("rom_version", "");
+ini_set("rom_author", "djb77");
+ini_set("rom_device", "SM-G96XX");
+ini_set("rom_date", "");
+
+# SETUP
+# -----
+writetmpfile("adb.prop","install=0");
+writetmpfile("advanced.prop","install=0");
+writetmpfile("backup.prop","install=0");
+writetmpfile("busybox.prop","install=0");
+writetmpfile("check_n9port.prop","install=0");
+writetmpfile("check_s9.prop","install=0");
+writetmpfile("check_s9+.prop","install=0");
+writetmpfile("deodexed.prop","install=0");
+writetmpfile("g960x.prop","install=0");
+writetmpfile("g965x.prop","install=0");
+writetmpfile("magisk.prop","install=0");
+writetmpfile("selinux.prop","install=0");
+writetmpfile("splash.prop","install=0");
+writetmpfile("tgpkernel-backup.prop","install=0");
+writetmpfile("tgpkernel-restore.prop","install=0");
+writetmpfile("wipe.prop","install=0");
+
+# SET LANGUAGE
+# ------------
+loadlang("langs/en.lang");
+
+# FONT AND THEME SELETION
+# -----------------------
+fontresload( "0", "ttf/Roboto-Regular.ttf;ttf/DroidSansArabic.ttf;ttf/DroidSansFallback.ttf;", "12" ); #-- Use sets of font (Font Family)
+theme("tgp");
+
+# SET LANGUAGE & FONT FAMILY
+# --------------------------
+loadlang("langs/en.lang");
+fontresload( "0", "ttf/Roboto-Regular.ttf", "12" ); #-- "0" = Small Font ( Look at Fonts & UNICODE Demo Below )
+fontresload( "1", "ttf/Roboto-Regular.ttf", "18" ); #-- "1" = Big Font
+
+# SPLASH SCREEN
+# -------------
+splash(3000,"splash");
+
+# INSTALLER SETUP
+# ---------------
+restotmp("files/adb","adb");
+restotmp("files/adb.bin","adb.bin");
+restotmp("files/fastboot","fastboot");
+restotmp("files/busybox","busybox");
+restotmp("files/tar","tar");
+restotmp("files/tgpkernel.sh","tgpkernel.sh");
+exec("/tmp/aroma/tgpkernel.sh","setup","","");
+
+# CHECK FOR CONFIG BACKUP
+# -----------------------
+exec("/tmp/aroma/tgpkernel.sh","config_check","","");
+if (prop("backup.prop","install")=="1") then
+	setvar(
+	"backup_text",
+	"<b><#99ccff>CONFIGURATION BACKUP FOUND</#></b>\n\n"+
+	"<#99cccc>The installer has located a saved configuration in the TGP folder on your Internal Memory.\n\n"+
+	"You will now be given an option to use this configuration and proceed straight to the installer, "+
+	"skipping all the installation selection screens.\n\n"+
+	"Press the </#><b>Next</b> <#99cccc>button, then select </#><b>Yes</b> <#99cccc>or</#> <b>No</b> <#99cccc>on the Popup Dialog Box.</#>"
+	);
+	textbox(
+	"<#ffffff>TGPKERNEL FOR S9 / S9+</#>",
+	" ",
+	"@deafult",
+	getvar("backup_text")
+	);
+	if
+		confirm(
+		"<#ffffff>TGPKERNEL FOR S9 / S9+</#>",
+		"Would you like to use your current saved configuration?",
+		"@default"
+		)=="yes"
+	then
+		writetmpfile("tgpkernel-restore.prop","install=1");
+	else
+		writetmpfile("tgpkernel-restore.prop","install=0");
+	endif;
+endif;
+
+if (prop("tgpkernel-restore.prop","install")=="0") then
+
+# INSTALL OPTIONS
+# ---------------
+	selectbox(
+		"<#ffffff>TGPKERNEL FOR S9 / S9+</#>",
+		"<#99ccff>        Please select from the following options</#>",
+		"",
+		"tgp.prop",
+		"<#ffffcc>Backup your settings</#>", "", 2,
+		"Yes", "", 0,
+		"No", "", 1,
+		"<#ffffcc>Root selection</#>", "", 2,
+		"Magisk - Clean Install", "", 0,
+		"Magisk", "", 1,
+		"No Root", "", 0,
+		"<#ffffcc>Splash Screen Options</#>", "", 2,
+		"Install S9 TGPKernel Splash Screen", "", 0,
+		"Install Note 9 TGPKernel Splash Screen", "", 0,
+		"Install Stock Splash Screen", "", 0,
+		"Keep Current Splash Screen", "", 1
+	);
+	if (prop("tgp.prop","selected.1")=="1") then
+		writetmpfile("tgpkernel-backup.prop","install=1");
+	endif;
+	if (prop("tgp.prop","selected.2")=="1") then
+		writetmpfile("wipe.prop","install=1");
+		writetmpfile("magisk.prop","install=1");
+	endif;
+	if (prop("tgp.prop","selected.2")=="2") then
+		writetmpfile("magisk.prop","install=1");
+	endif;
+	if (prop("tgp.prop","selected.3")=="1") then
+		writetmpfile("splash.prop","install=2");
+	endif;
+	if (prop("tgp.prop","selected.3")=="2") then
+		writetmpfile("splash.prop","install=3");
+	endif;
+	if (prop("tgp.prop","selected.3")=="3") then
+		writetmpfile("splash.prop","install=1");
+	endif;
+
+# INSTALL APPS - KERNEL OPTIONS
+# -----------------------------
+	checkbox(
+		"<#ffffff>TGPKERNEL FOR S9 / S9+</#>",
+		"<#99ccff>        Please select from the following options</#>",
+		"",
+		"main.prop",
+		"<#ffffcc>Install System Apps</#>", "", 2,
+		"Install ADB", "", 0,
+		"Install Busybox", "", 0,
+		"<#ffffcc>Kernel Options</#>", "", 2,
+		"Advanced Kernel Options", "", 0,
+		"Set Kernel to Enforcing", "", 0
+	);
+	if (prop("main.prop","item.1.1")=="1") then
+		writetmpfile("adb.prop","install=1");
+	endif;
+	if (prop("main.prop","item.1.2")=="1") then
+		writetmpfile("busybox.prop","install=1");
+	endif;
+	if (prop("main.prop","item.2.2")=="1") then
+		writetmpfile("anykernel.prop","install=1");
+		writetmpfile("selinux.prop","install=1");
+	endif;
+
+# ADVANCED OPTIONS
+# ----------------
+	if (prop("main.prop","item.2.1")=="1") then
+		writetmpfile("advanced.prop","install=1");
+		alert("WARNING !!", "           PLEASE PROCEED WITH CAUTION !!");
+
+# ADVANCED PAGE 1 - CPU GOVERNORS (BIG)
+# -------------------------------------
+		form(
+			"<#ffffff>TGPKERNEL FOR S9 / S9+</#>",
+			"<#99ccff>        Please select from the following options</#>",
+			"",
+			"governor-big.prop",
+			"governor-big", "<#ffffcc>Select your CPU Governor (Big CPU)</#>", "", "group",
+			"blu_schedutil", "blu_schedutil", "", "select",
+			"schedutil", "schedutil", "", "select.selected"
+		);
+
+# ADVANCED PAGE 2 - CPU GOVERNORS (LITTLE)
+# ----------------------------------------
+		form(
+			"<#ffffff>TGPKERNEL FOR S9 / S9+</#>",
+			"<#99ccff>        Please select from the following options</#>",
+			"",
+			"governor-little.prop",
+			"governor-little", "<#ffffcc>Select your CPU Governor (Little CPU)</#>", "", "group",
+			"blu_schedutil", "blu_schedutil", "", "select",
+			"schedutil", "schedutil", "", "select.selected"
+		);
+
+# ADVANCED PAGE 3 - IO SCHEDULERS (INTERNAL)
+# ------------------------------------------
+		form(
+			"<#ffffff>TGPKERNEL FOR S9 / S9+</#>",
+			"<#99ccff>        Please select from the following options</#>",
+			"",
+			"scheduler-internal.prop",
+			"scheduler-internal", "<#ffffcc>Select your IO Scheduler (Internal)</#>", "", "group",
+			"bfq", "bfq", "", "select",
+			"cfq", "cfq", "", "select.selected",
+			"deadline", "deadline", "", "select",
+			"fiops", "fiops", "", "select",
+			"maple", "maple", "", "select",
+			"noop", "noop", "", "select",
+			"sio", "sio", "", "select",
+			"zen", "zen", "", "select"
+		);
+
+# ADVANCED PAGE 4 - IO SCHEDULERS (EXTERNAL)
+# ------------------------------------------
+		form(
+			"<#ffffff>TGPKERNEL FOR S9 / S9+</#>",
+			"<#99ccff>        Please select from the following options</#>",
+			"",
+			"scheduler-external.prop",
+			"scheduler-external", "<#ffffcc>Select your IO Scheduler (External)</#>", "", "group",
+			"bfq", "bfq", "", "select",
+			"cfq", "cfq", "", "select.selected",
+			"deadline", "deadline", "", "select",
+			"fiops", "fiops", "", "select",
+			"maple", "maple", "", "select",
+			"noop", "noop", "", "select",
+			"sio", "sio", "", "select",
+			"zen", "zen", "", "select"
+		);
+
+# ADVANCED PAGE 5 - CONGESTORS
+# ----------------------------
+		form(
+			"<#ffffff>TGPKERNEL FOR S9 / S9+</#>",
+			"<#99ccff>        Please select from the following options</#>",
+			"",
+			"tcp.prop",
+			"tcp", "<#ffffcc>Select your TCP Congestion Algorithm</#>", "", "group",
+			"balia", "balia", "", "select",
+			"bbr", "bbr", "", "select",
+			"bic", "bic", "", "select.selected",
+			"cubic", "cubic", "", "select",
+			"dctcp", "dctcp", "", "select",
+			"htcp", "htcp", "", "select",
+			"hstcp", "hstcp", "", "select",
+			"hybla", "hybla", "", "select",
+			"illinois", "illinois", "", "select",
+			"lia", "lia", "", "select",
+			"lp", "lp", "", "select",
+			"nv", "nv", "", "select",
+			"olia", "olia", "", "select",
+			"scalable", "scalable", "", "select",
+			"vegas", "vegas", "", "select",
+			"veno", "veno", "", "select",
+			"westwood", "westwood", "", "select",
+			"wvegas", "wvegas", "", "select",
+			"yeah", "yeah", "", "select"
+		);
+
+	endif;
+
+endif;
+
+# START INSTALLER
+# ---------------
+ini_set("text_next", "Install");
+ini_set("icon_next", "@installbutton");
+viewbox(
+	"<#ffffff>TGPKERNEL FOR S9 / S9+</#>",
+	"<#99cccc>TGPKernel is ready to be installed.\n\n"+
+	"Press the </#><b>Install</b> <#99cccc>button to begin the installation.\n\n"+
+	"To review or change any of your settings, press the </#><b>Back</b> <#99cccc>button.</#>",
+	""
+);
+
+# INSTALL PROCESS
+# --------------
+ini_set("text_next", "Finish");
+ini_set("icon_next", "@finish");
+setvar("retstatus",
+install(
+	"<#ffffff>TGPKERNEL FOR S9 / S9+</#>",
+	"<#99ccff>            The Kernel is now being installed</#>",
+	"",
+	"<#99ccff>            The Kernel has now been installed</#>"
+)
+);
+
