@@ -1,5 +1,5 @@
 /**
- * Copyright (C) ARM Limited 2010-2016. All rights reserved.
+ * Copyright (C) Arm Limited 2010-2016. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -52,13 +52,13 @@ extern int gator_cluster_count;
  * Filesystem
  ******************************************************************************/
 struct dentry *gatorfs_mkdir(struct super_block *sb, struct dentry *root,
-		char const *name);
+                 char const *name);
 
 int gatorfs_create_ulong(struct super_block *sb, struct dentry *root,
-		char const *name, unsigned long *val);
+             char const *name, unsigned long *val);
 
 int gatorfs_create_ro_ulong(struct super_block *sb, struct dentry *root,
-		char const *name, unsigned long *val);
+                char const *name, unsigned long *val);
 
 /******************************************************************************
  * Tracepoints
