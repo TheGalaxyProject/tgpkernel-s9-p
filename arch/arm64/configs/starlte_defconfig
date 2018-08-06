@@ -1,0 +1,9 @@
+#
+# Modifications for Samsung Galaxy S9 (starlte)
+#
+# CONFIG_CAMERA_CIS_3M3_OBJ is not set
+CONFIG_OIS_USE_RUMBA_S4=y
+CONFIG_CAMERA_STAR=y
+# CONFIG_CAMERA_STAR2 is not set
+# CONFIG_OIS_USE_RUMBA_S6 is not set
+
