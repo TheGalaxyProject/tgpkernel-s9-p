@@ -297,6 +297,13 @@ on post-fs
     setrlimit 8 67108864 67108864
 
 on post-fs-data
+#Private Mode
+    mkdir /mnt/shell/privatemode 0700 system system
+    mkdir /storage/Private 0000 system system
+    mkdir /data/privatemode 0770 system system
+    chown system system /data/privatemode
+    restorecon /data/privatemode
+
 # Log data folder
     mkdir /data/log 0771 radio system
     mkdir /data/vendor 0771 radio system
