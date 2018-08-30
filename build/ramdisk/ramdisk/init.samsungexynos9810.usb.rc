@@ -14,6 +14,7 @@ on init
     mkdir /sys/kernel/config/usb_gadget/g1/functions/accessory.0
     mkdir /sys/kernel/config/usb_gadget/g1/functions/audio_source.0
     mkdir /sys/kernel/config/usb_gadget/g1/functions/ncm.0
+    mkdir /sys/kernel/config/usb_gadget/g1/functions/mass_storage.0
     mkdir /sys/kernel/config/usb_gadget/g1/functions/ffs.adb 0770 shell shell
     mkdir /dev/usb-ffs 0770 shell shell
     mkdir /dev/usb-ffs/adb 0770 shell shell
@@ -36,6 +37,7 @@ on boot
     symlink /sys/kernel/config/usb_gadget/g1/functions/accessory.0 /sys/kernel/config/usb_gadget/g1/configs/c.1/accessory.0
     symlink /sys/kernel/config/usb_gadget/g1/functions/audio_source.0 /sys/kernel/config/usb_gadget/g1/configs/c.1/audio_source.0
     symlink /sys/kernel/config/usb_gadget/g1/functions/ncm.0 /sys/kernel/config/usb_gadget/g1/configs/c.1/ncm.0
+    symlink /sys/kernel/config/usb_gadget/g1/functions/mass_storage.0 /sys/kernel/config/usb_gadget/g1/configs/c.1/mass_storage.0
     setprop sys.usb.configfs 1
 
 on charger && property:ro.debuggable=1
