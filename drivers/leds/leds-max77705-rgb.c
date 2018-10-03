@@ -933,7 +933,7 @@ static ssize_t led_fade_time_up_store(struct device *dev,
 {
 	int retval;
 	int val = 0;
-	retval = sscanf(buf, "%1d", &val);
+	retval = sscanf(buf, "%d", &val);
 	if (retval != 0 && val >= 100  &&  val <= 4000)
 		led_fade_time_up = val;
 	return count;
@@ -952,7 +952,7 @@ static ssize_t led_fade_time_down_store(struct device *dev,
 {
 	int retval;
 	int val = 0;
-	retval = sscanf(buf, "%1d", &val);
+	retval = sscanf(buf, "%d", &val);
 	if (retval != 0 && val >= 100  &&  val <= 4000)
 		led_fade_time_down = val;
 	return count;
