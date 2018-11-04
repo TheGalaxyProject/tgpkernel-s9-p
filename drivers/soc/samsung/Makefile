@@ -44,6 +44,7 @@ obj-$(CONFIG_EXYNOS_HOTPLUG_GOVERNOR)	+= exynos-hotplug_governor.o
 # DVFS
 obj-$(CONFIG_EXYNOS_DVFS_MANAGER)	+= exynos-dm.o
 obj-$(CONFIG_EXYNOS_MCINFO)	+= exynos-mcinfo.o
+obj-$(CONFIG_STATE_NOTIFIER)	+= state_notifier.o
 
 # OCP
 obj-$(CONFIG_EXYNOS_OCP)	+= exynos-ocp.o
