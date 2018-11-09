@@ -2988,14 +2988,14 @@ static void sec_ts_input_close(struct input_dev *dev)
 
 	ts->pressure_setting_mode = 0;
 
+#ifdef CONFIG_WAKE_GESTURES
+	if (s2w_switch || dt2w_switch) 
+		enable_irq_wake(ts->client->irq);
+	else 
+#endif
 	if (ts->prox_power_off) {
 		sec_ts_stop_device(ts);
 	} else {
-#ifdef CONFIG_WAKE_GESTURES
-		if (s2w_switch || dt2w_switch)
-			enable_irq_wake(ts->client->irq);
-		else
-#endif
 		if (ts->lowpower_mode)
 			sec_ts_set_lowpowermode(ts, TO_LOWPOWER_MODE);
 		else
