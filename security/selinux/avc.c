@@ -34,12 +34,6 @@
 #include "avc_ss.h"
 #include "classmap.h"
 
-// [ SEC_SELINUX_PORTING_COMMON
-#ifdef SEC_SELINUX_DEBUG
-#include <linux/signal.h>
-#endif
-// ] SEC_SELINUX_PORTING_COMMON
-
 #define AVC_CACHE_SLOTS			512
 #define AVC_DEF_CACHE_THRESHOLD		512
 #define AVC_CACHE_RECLAIM		16
@@ -1040,12 +1034,7 @@ static noinline int avc_denied(u32 ssid, u32 tsid,
 	}
 #endif
 
-#ifdef CONFIG_ALWAYS_ENFORCE
-	if (!(avd->flags & AVD_FLAGS_PERMISSIVE))
-#else
 	if (selinux_enforcing && !(avd->flags & AVD_FLAGS_PERMISSIVE))
-#endif
-// ] SEC_SELINUX_PORTING_COMMON
 		return -EACCES;
 
 	avc_update_node(AVC_CALLBACK_GRANT, requested, driver, xperm, ssid,
