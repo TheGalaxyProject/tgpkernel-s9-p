@@ -664,11 +664,6 @@ on post-fs-data
     start auditd
 # ] SEC_SELINUX_PORTING_COMMON
 
-    # VaultKeeper socket
-    mkdir /dev/socket/vaultkeeper 0770 system system
-    chown system system /dev/socket/vaultkeeper
-    chmod 0770 /dev/socket/vaultkeeper
-
 # [ SEC_AASA_ASKS_PORTING
     # Seperate location for storing security policy files on data
     mkdir /data/security 0701 system system
@@ -1780,11 +1775,6 @@ service charon /system/bin/charon
     capabilities NET_ADMIN NET_BIND_SERVICE NET_RAW
     disabled
     oneshot
-
-
-# VaultKeeper
-service vaultkeeperd /system/bin/vaultkeeperd
-    class core
 
 # CASS
 service cass /system/bin/cass
