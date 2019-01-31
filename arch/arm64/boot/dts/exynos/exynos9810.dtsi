@@ -5001,7 +5001,7 @@
 			boost_table = < 20 858000 15 962000 5 1261000 0 >;
 			up_rate_limit_table = < 5 >;
 			down_rate_limit_table = < 5 >;
-			upscale_ratio_table = < 80 1261000 90 >;
+			upscale_ratio_table = < 70 962000 80 1261000 90 >;
 		};
 	};
 
