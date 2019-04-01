@@ -31,7 +31,7 @@ int _regmap_write_nohook(struct regmap *map, unsigned int reg, unsigned int val)
 
 // Moro sound general
 #define MORO_SOUND_DEFAULT 		0
-#define MORO_SOUND_VERSION 		"2.0.0"
+#define MORO_SOUND_VERSION 		"2.1.0"
 #define DEBUG_DEFAULT 			0
 
 // headphone levels
