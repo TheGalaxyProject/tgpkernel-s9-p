@@ -290,7 +290,7 @@ unsigned int moro_sound_write_hook(unsigned int reg, unsigned int val)
 	switch (reg)
 	{
 		// headphone l
-		case MADERA_DAC_DIGITAL_VOLUME_1L:
+		case MADERA_DAC_DIGITAL_VOLUME_2L:
 		{
 			val &= ~MADERA_OUT2L_VOL_MASK;
 			val |= (headphone_gain_l << MADERA_OUT2L_VOL_SHIFT);
@@ -298,7 +298,7 @@ unsigned int moro_sound_write_hook(unsigned int reg, unsigned int val)
 		}
 
 		// headphone r
-		case MADERA_DAC_DIGITAL_VOLUME_1R:
+		case MADERA_DAC_DIGITAL_VOLUME_2R:
 		{
 			val &= ~MADERA_OUT2R_VOL_MASK;
 			val |= (headphone_gain_r << MADERA_OUT2R_VOL_SHIFT);
