@@ -678,6 +678,10 @@ on post-fs-data
     mkdir /data/vendor_de 0771 root root
     mkdir /data/vendor/hardware 0771 root root
 
+    # mobicore
+    mkdir /data/vendor/mcRegistry 0775 system system
+    mkdir /data/misc/mcRegistry 0775 system system
+
     # create mediacodec folder
     mkdir /data/vendor/media 0770 mediacodec mediacodec
 
@@ -1223,8 +1227,6 @@ on boot
 	chmod 0660 /sys/class/power_supply/battery/wc_tx_mfc_iin_from_uno    
 	chown system radio /sys/class/power_supply/battery/wc_tx_id
 	chmod 0660 /sys/class/power_supply/battery/wc_tx_id
-	chown system radio /sys/class/power_supply/battery/ext_event
-	chmod 0660 /sys/class/power_supply/battery/ext_event
 	chown system system /sys/class/power_supply/battery/batt_shipmode_test
 	chmod 0664 /sys/class/power_supply/battery/batt_shipmode_test
 	chown system system /sys/class/power_supply/battery/batt_jig_gpio
@@ -1517,9 +1519,6 @@ on boot
     chown system radio /sys/class/sensors/grip_sensor_wifi_sub/useful_filt
 
 on nonencrypted
-    # mobicore mcRegistry
-    mkdir /data/vendor/mcRegistry 0775 system system
-    mkdir /data/misc/mcRegistry 0775 system system
     class_start main
     class_start late_start
 
@@ -1588,9 +1587,6 @@ on property:vold.decrypt=trigger_restart_min_framework
     class_start main
 
 on property:vold.decrypt=trigger_restart_framework
-    #mobicore mcRegistry
-    mkdir /data/vendor/mcRegistry 0775 system system
-    mkdir /data/misc/mcRegistry 0775 system system
     # A/B update verifier that marks a successful boot.
     exec_start update_verifier
     class_start main
@@ -1899,7 +1895,3 @@ on property:persist.security.tlc.ccm=1
 on property:persist.security.ccmextra=1
     setprop persist.security.ccmextra 0
     write /proc/sysrq-trigger "c"
-
-# package_fw
-on property:sys.do_restorecon_user=*
-    restorecon --recursive --force /data/media/${sys.do_restorecon_user}
