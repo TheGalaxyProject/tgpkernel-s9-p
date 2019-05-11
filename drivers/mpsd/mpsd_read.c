@@ -200,7 +200,7 @@ static void get_app_name(unsigned int pid, struct app_params_struct *data)
 		return;
 	}
 
-	__get_task_comm(data->name, TASK_COMM_LEN, task);
+	get_task_comm(data->name, task);
 	put_task_struct(task);
 }
 
@@ -1780,7 +1780,7 @@ void get_app_params_snapshot(unsigned int pid,
 		return;
 	}
 
-	__get_task_comm(app_params->name, TASK_COMM_LEN, task);
+	get_task_comm(app_params->name, task);
 	app_params->tgid = (long long)(task->tgid);
 	app_params->flags = (long long)(task->flags);
 	app_params->priority = (long long)(task->prio - MAX_RT_PRIO);
