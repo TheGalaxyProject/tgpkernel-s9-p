@@ -2438,6 +2438,7 @@ static void dw_mci_tasklet_func(unsigned long priv)
 
 			if (cmd->data && err) {
 				dw_mci_fifo_reset(host->dev, host);
+
 				dw_mci_stop_dma(host);
 				send_stop_abort(host, data);
 				state = STATE_SENDING_STOP;
