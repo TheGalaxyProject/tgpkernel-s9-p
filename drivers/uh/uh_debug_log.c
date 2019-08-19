@@ -6,7 +6,7 @@
 #include <linux/uh.h>
 #include <linux/rkp.h>
 
-extern unsigned int ro_alloc_n;
+static unsigned int ro_alloc_n;
 
 ssize_t	uh_log_read(struct file *filep, char __user *buf, size_t size, loff_t *offset)
 {
