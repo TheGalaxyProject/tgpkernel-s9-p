@@ -407,7 +407,8 @@ auditfilter statsd debugfs_trace_marker:file getattr;
 auditfilter hwservicemanager proc_avc_msg:file getattr;
 
 # P190218-08158 
-auditfilter vendor_init unlabeled:dir search;
+# P190708-03533
+auditfilter vendor_init unlabeled:dir { search getattr setattr };
 
 # http://mobilerndhub.sec.samsung.net/its/browse/SEANDROID-1490
 auditfilter policyloader_app dalvikcache_data_file:file write;
@@ -621,5 +622,15 @@ auditfilter vendor_init functionfs:file getattr;
 # http://mobilerndhub.sec.samsung.net/its/browse/SEANDROID-2070
 auditfilter platform_app unlabeled:file { read write };
 
+# http://mobilerndhub.sec.samsung.net/its/browse/SEANDROID-2166
+auditfilter platform_app hal_memtrack_default:binder call;
+
 # P190527-04023
 auditfilter mediaprovider shell_data_file:dir getattr;
+
+# http://mobilerndhub.sec.samsung.net/its/browse/SEANDROID-2165
+auditfilter hal_camera_default media_rw_data_file:dir search;
+
+# http://mobilerndhub.sec.samsung.net/its/browse/SEANDROID-2293
+auditfilter platform_app spu_file:dir read; comm="ndroid.spay:web"
+
