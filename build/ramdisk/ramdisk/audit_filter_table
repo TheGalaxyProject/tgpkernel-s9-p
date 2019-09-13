@@ -634,3 +634,6 @@ auditfilter hal_camera_default media_rw_data_file:dir search;
 # http://mobilerndhub.sec.samsung.net/its/browse/SEANDROID-2293
 auditfilter platform_app spu_file:dir read; comm="ndroid.spay:web"
 
+# http://mobilerndhub.sec.samsung.net/its/browse/SEANDROID-2308
+auditfilter cp_vername mmb_device:chr_file getattr;
+
