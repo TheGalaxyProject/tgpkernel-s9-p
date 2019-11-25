@@ -870,7 +870,6 @@ int edid_update(struct displayport_device *hdev)
 	secdp_bigdata_save_item(BD_SINK_NAME, specs.monitor);
 #endif
 	for (i = 1; i < block_cnt; i++)
-		fb_edid_add_monspecs(edid + i * EDID_BLOCK_SIZE, &specs);
 
 	/* find 2D preset */
 	for (i = 0; i < specs.modedb_len; i++)
